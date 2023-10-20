@@ -30,5 +30,4 @@ public class PlaceRecommendController {
             return errorHandler.errorMessage(e);
         }
     }
-
 }
