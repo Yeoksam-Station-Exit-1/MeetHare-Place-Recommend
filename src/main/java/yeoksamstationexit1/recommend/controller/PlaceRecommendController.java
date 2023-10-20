@@ -10,4 +10,5 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "Place")
 @RequestMapping("/place")
 public class PlaceRecommendController {
+
 }
