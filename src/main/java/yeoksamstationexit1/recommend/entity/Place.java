@@ -30,6 +30,12 @@ public class Place {
     private String address;
 
     @NotNull
+    private String detail;
+
+    @NotNull
+    private String imgUrl;
+
+    @NotNull
     private String category;
 
     @JsonProperty("station_id")
