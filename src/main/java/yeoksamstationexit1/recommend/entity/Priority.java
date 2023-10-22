@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import yeoksamstationexit1.recommend.dto.PriorityDTO;
 
 import javax.persistence.*;
 
@@ -22,9 +23,23 @@ public class Priority {
 
     private boolean quite;
 
-    private int food;
+    private byte food;
 
     private String activity;
 
-    private int culture;
+    private byte culture;
+
+    public Priority(boolean quite, int food, String activity, int culture) {
+        this.activity = activity;
+        this.culture = (byte) culture;
+        this.food = (byte) food;
+        this.quite = quite;
+    }
+
+    public void update(PriorityDTO priorityDTO) {
+        this.activity = priorityDTO.getActivity();
+        this.culture = (byte) priorityDTO.getCulture();
+        this.food = (byte) priorityDTO.getFood();
+        this.quite = priorityDTO.isQuite();
+    }
 }
