@@ -6,9 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import yeoksamstationexit1.recommend.dto.PlaceDTO;
-import yeoksamstationexit1.recommend.dto.PlaceDetailDTO;
-import yeoksamstationexit1.recommend.dto.PriorityDTO;
+import yeoksamstationexit1.recommend.dto.*;
 import yeoksamstationexit1.recommend.service.PlaceService;
 import yeoksamstationexit1.recommend.service.PriorityService;
 import yeoksamstationexit1.recommend.util.ErrorHandler;
@@ -32,12 +30,22 @@ public class PlaceRecommendController {
         this.priorityService = priorityService;
     }
 
-
     @ApiOperation(value = "비로그인 장소 추천", notes = "비로그인 상황에서 장소 추천 제공")
     @GetMapping("/simple/{stationNum}")
-    public ResponseEntity<?> getSimplePlace(@PathVariable Integer stationNum) {
+    public ResponseEntity<?> getSimplePlaceRecommend(@PathVariable Integer stationNum) {
         try {
             Map<String, List<PlaceDTO>> list = placeService.getSimplePlaceListByStationNum(stationNum);
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        } catch (Exception e) {
+            return errorHandler.errorMessage(e);
+        }
+    }
+
+    @ApiOperation(value = "로그인 장소 추천", notes = "로그인 상황에서 장소 추천 제공")
+    @PostMapping("/complex")
+    public ResponseEntity<?> getComplexPlaceRecommend(@RequestBody RecommendRequestDTO recommendRequestDTO) {
+        try {
+            List<PlaceDTO> list = placeService.getComplexPlaceRecommend(recommendRequestDTO);
             return new ResponseEntity<>(list, HttpStatus.OK);
         } catch (Exception e) {
             return errorHandler.errorMessage(e);

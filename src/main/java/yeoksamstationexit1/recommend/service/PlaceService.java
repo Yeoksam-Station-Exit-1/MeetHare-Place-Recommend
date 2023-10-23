@@ -2,8 +2,10 @@ package yeoksamstationexit1.recommend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import yeoksamstationexit1.recommend.dto.ComplexDTO;
 import yeoksamstationexit1.recommend.dto.PlaceDTO;
 import yeoksamstationexit1.recommend.dto.PlaceDetailDTO;
+import yeoksamstationexit1.recommend.dto.RecommendRequestDTO;
 import yeoksamstationexit1.recommend.entity.Place;
 import yeoksamstationexit1.recommend.entity.PlaceTime;
 import yeoksamstationexit1.recommend.repository.PlaceRepository;
@@ -16,11 +18,13 @@ import java.util.*;
 public class PlaceService {
     private final PlaceRepository placeRepository;
     private final PlaceTimeRepository placeTimeRepository;
+    private final HttpService httpService;
 
     @Autowired
-    public PlaceService(PlaceRepository placeRepository, PlaceTimeRepository placeTimeRepository) {
+    public PlaceService(PlaceRepository placeRepository, PlaceTimeRepository placeTimeRepository, HttpService httpService) {
         this.placeRepository = placeRepository;
         this.placeTimeRepository = placeTimeRepository;
+        this.httpService = httpService;
     }
 
     public Map<String, List<PlaceDTO>> getSimplePlaceListByStationNum(Integer stationNum) {
@@ -66,5 +70,20 @@ public class PlaceService {
             return new PlaceDetailDTO(optionalPlaceDTO.get(), placeTimeList);
         else
             throw new DataNotFoundException("It's a place that doesn't exist.");
+    }
+
+    public List<PlaceDTO> getComplexPlaceRecommend(RecommendRequestDTO recommendRequestDTO) {
+        List<ComplexDTO> complexDTOList = placeRepository.findPlaceAndTimeByStationAndDay(recommendRequestDTO.getStationId(), recommendRequestDTO.getDate().getDayOfWeek().getValue());
+
+//        List<Priority> priorityList = priorityRepository.findAllById(recommendRequestDTO.getUserList());
+        List<PlaceDTO> suitableList = new ArrayList<>();
+        long finalTime = recommendRequestDTO.getFinalTime();
+        for (ComplexDTO complexDTO : complexDTOList) {
+            if ((finalTime & complexDTO.getTime()) > 0) {
+                suitableList.add(new PlaceDTO(complexDTO));
+            }
+        }
+
+        return suitableList;
     }
 }
