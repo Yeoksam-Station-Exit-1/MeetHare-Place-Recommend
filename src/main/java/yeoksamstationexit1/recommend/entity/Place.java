@@ -33,6 +33,7 @@ public class Place {
     private String detail;
 
     @NotNull
+    @Column(columnDefinition = "VARCHAR(500)")
     private String imgUrl;
 
     @NotNull
