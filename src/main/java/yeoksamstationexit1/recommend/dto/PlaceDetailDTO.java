@@ -29,7 +29,7 @@ public class PlaceDetailDTO {
     private String address;
 
     @JsonProperty("place_time")
-    private Map<Integer, String> time;
+    private Map<String, String> time;
 
     @JsonProperty("place_detail")
     private String detail;
@@ -47,8 +47,9 @@ public class PlaceDetailDTO {
         this.time = generateTime(placeTimeList);
     }
 
-    public Map<Integer, String> generateTime(List<PlaceTime> placeTimeList) {
-        Map<Integer, String> timeList = new HashMap<>();
+    public Map<String, String> generateTime(List<PlaceTime> placeTimeList) {
+        String[] days = new String[]{"", "월", "화", "수", "목", "금", "토", "일"};
+        Map<String, String> timeList = new HashMap<>();
         StringBuilder sb;
         int startCnt, rangeCnt;
         for (PlaceTime placeTime : placeTimeList) {
@@ -78,7 +79,8 @@ public class PlaceDetailDTO {
                     sb.append(operatePeriod);
                 else sb.append(", ").append(operatePeriod);
             }
-            timeList.put((int) placeTime.getDay(), sb.toString());
+
+            timeList.put(days[placeTime.getDay()], sb.toString());
         }
         return timeList;
     }
