@@ -5,9 +5,7 @@ import lombok.*;
 import yeoksamstationexit1.recommend.entity.Place;
 import yeoksamstationexit1.recommend.entity.PlaceTime;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 @Setter
@@ -29,7 +27,7 @@ public class PlaceDetailDTO {
     private String address;
 
     @JsonProperty("place_time")
-    private Map<String, String> time;
+    private String[] time;
 
     @JsonProperty("place_detail")
     private String detail;
@@ -47,11 +45,12 @@ public class PlaceDetailDTO {
         this.time = generateTime(placeTimeList);
     }
 
-    public Map<String, String> generateTime(List<PlaceTime> placeTimeList) {
+    public String[] generateTime(List<PlaceTime> placeTimeList) {
         String[] days = new String[]{"", "월", "화", "수", "목", "금", "토", "일"};
-        Map<String, String> timeList = new HashMap<>();
+        String[] timeList = new String[7];
         StringBuilder sb;
         int startCnt, rangeCnt;
+        placeTimeList.sort(Comparator.comparingInt(PlaceTime::getDay));
         for (PlaceTime placeTime : placeTimeList) {
             long binaryTime = placeTime.getTime();
             String binaryString = Long.toBinaryString(binaryTime);
@@ -80,7 +79,7 @@ public class PlaceDetailDTO {
                 else sb.append(", ").append(operatePeriod);
             }
 
-            timeList.put(days[placeTime.getDay()], sb.toString());
+            timeList[placeTime.getDay() - 1] = days[placeTime.getDay()] + sb;
         }
         return timeList;
     }
