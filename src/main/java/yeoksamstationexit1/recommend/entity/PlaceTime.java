@@ -17,6 +17,7 @@ import static org.hibernate.annotations.CascadeType.DELETE;
 public class PlaceTime {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @NotNull
     private int id;
 
