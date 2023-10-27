@@ -2,6 +2,7 @@ package yeoksamstationexit1.recommend.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.istack.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Cascade;
@@ -34,4 +35,10 @@ public class PlaceTime {
     @NotNull
     private long time;
 
+    @Builder
+    public PlaceTime(Place place, byte day, long time) {
+        this.place = place;
+        this.day = day;
+        this.time = time;
+    }
 }
