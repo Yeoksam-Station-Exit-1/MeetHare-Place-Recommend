@@ -73,7 +73,7 @@ jobs:
           push: true
           # platforms: linux/amd64
           tags: |
-            tprogramer/my-container-test:latest
-            tprogramer/my-container-test:${{ steps.extract_version_name.outputs.version }}
+            tprogramer/meethare-place-recommend:latest
+            tprogramer/meethare-place-recommend:${{ steps.extract_version_name.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
