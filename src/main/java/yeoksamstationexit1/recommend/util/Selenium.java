@@ -102,6 +102,8 @@ public class Selenium {
                         .build(); // PlaceTime 객체 생성
                 placeTimeRepository.save(newPlaceTime); // 저장
             }
+
+            driverinfo.quit(); // 종료
         }
     }
 
