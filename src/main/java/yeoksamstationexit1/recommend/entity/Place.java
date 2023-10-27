@@ -39,6 +39,11 @@ public class Place {
     @NotNull
     private String category;
 
+    @NotNull
+    @JsonProperty("review_count")
+    @Column(name = "review_count")
+    private int reviewCount;
+
     @JsonProperty("station_id")
     @NotNull
     @OneToOne
