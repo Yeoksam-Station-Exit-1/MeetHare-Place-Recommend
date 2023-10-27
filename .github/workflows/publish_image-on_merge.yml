@@ -29,15 +29,15 @@ jobs:
           cache: "gradle"
 
       - name: Set YML
-          run: |
-            mkdir -p src/main/resources
-            echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
-            find src
+        run: |
+          mkdir -p src/main/resources
+          echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
+          find src
       # Gradle Dependency 캐싱
       - name: Gradle Caching
         uses: actions/cache@v3
         with:
-          path: |
+          path:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
