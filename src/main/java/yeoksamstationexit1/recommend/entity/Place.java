@@ -61,4 +61,13 @@ public class Place {
         this.category = category;
         this.station = station;
     }
+
+    public Place update(float grade, String address, String detail, String imgUrl, String category) {
+        this.grade = grade;
+        this.address = address;
+        this.detail = detail;
+        this.imgUrl = imgUrl;
+        this.category = category;
+        return this;
+    }
 }

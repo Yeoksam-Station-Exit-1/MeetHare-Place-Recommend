@@ -1,6 +1,7 @@
 package yeoksamstationexit1.recommend.util;
 
 import org.openqa.selenium.*;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -19,10 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,24 +81,40 @@ public class Selenium {
             Object[] timeAndDetail = placeTimeAndDetail(driverinfo); // 영업 시간, 상세 정보
             String detail = (String) timeAndDetail[0]; // 상세 정보
 
-            Place newPlace = Place.builder()
-                    .name(name)
-                    .grade(grade)
-                    .address(address)
-                    .detail(detail)
-                    .imgUrl(imgUrl)
-                    .category(category)
-                    .station(station)
-                    .build(); // Place 객체 생성
-            placeRepository.save(newPlace); // 저장
+            Optional<Place> optionalPlace = placeRepository.findByNameAndStationId(name, station.getStationId()); // 상호명, 역과 일치하는 장소
+            if(optionalPlace.isEmpty()) { // 장소가 없으면 장소 생성 및 저장
+                Place newPlace = Place.builder()
+                        .name(name)
+                        .grade(grade)
+                        .address(address)
+                        .detail(detail)
+                        .imgUrl(imgUrl)
+                        .category(category)
+                        .station(station)
+                        .build(); // Place 객체 생성
+                placeRepository.save(newPlace); // 저장
 
-            for(int i=1; i<timeAndDetail.length; i++) {
-                PlaceTime newPlaceTime = PlaceTime.builder()
-                        .place(newPlace)
-                        .day((byte) i)
-                        .time((Long) timeAndDetail[i])
-                        .build(); // PlaceTime 객체 생성
-                placeTimeRepository.save(newPlaceTime); // 저장
+                for(int i=1; i<timeAndDetail.length; i++) {
+                    PlaceTime newPlaceTime = PlaceTime.builder()
+                            .place(newPlace)
+                            .day((byte) i)
+                            .time((Long) timeAndDetail[i])
+                            .build(); // PlaceTime 객체 생성
+                    placeTimeRepository.save(newPlaceTime); // 저장
+                }
+            } else { // 장소가 있으면 업데이트
+                Place newPlace = optionalPlace
+                        .map(entity -> entity.update(grade, address, detail, imgUrl, category))
+                        .orElse(Place.builder().build());
+                placeRepository.save(newPlace);
+                for(int i=1; i<timeAndDetail.length; i++) {
+                    Optional<PlaceTime> optionalPlaceTime = placeTimeRepository.findByPlaceNumAndDay(newPlace.getPlaceNum(), i);
+                    int finalI = i;
+                    PlaceTime newPlaceTime = optionalPlaceTime
+                            .map(entity -> entity.update(newPlace, (byte) finalI, (Long) timeAndDetail[finalI]))
+                            .orElse(PlaceTime.builder().build());
+                    placeTimeRepository.save(newPlaceTime);
+                }
             }
 
             driverinfo.quit(); // 종료

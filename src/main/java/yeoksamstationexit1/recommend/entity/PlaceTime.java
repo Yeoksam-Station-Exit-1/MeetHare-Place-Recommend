@@ -41,4 +41,11 @@ public class PlaceTime {
         this.day = day;
         this.time = time;
     }
+
+    public PlaceTime update(Place place, byte day, long time) {
+        this.place = place;
+        this.day = day;
+        this.time = time;
+        return this;
+    }
 }
