@@ -5,7 +5,8 @@ import lombok.*;
 import yeoksamstationexit1.recommend.entity.Place;
 import yeoksamstationexit1.recommend.entity.PlaceTime;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 
 @Getter
 @Setter
