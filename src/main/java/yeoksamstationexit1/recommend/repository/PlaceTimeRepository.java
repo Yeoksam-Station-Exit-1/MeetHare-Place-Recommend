@@ -15,5 +15,5 @@ public interface PlaceTimeRepository extends JpaRepository<PlaceTime, Integer> {
 
     @Query("SELECT pt FROM PlaceTime pt WHERE pt.place.placeNum = :placeNum " +
             "AND pt.day = :day")
-    Optional<PlaceTime> findByPlaceNumAndDay(@Param("placeNum") Integer placeNum, @Param("day") Integer day);
+    Optional<PlaceTime> findByPlaceNumAndDay(@Param("placeNum") Integer placeNum, @Param("day") Byte day);
 }

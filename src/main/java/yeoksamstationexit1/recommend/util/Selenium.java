@@ -43,7 +43,7 @@ public class Selenium {
     public void createPlaceDetail(Station station, String category) throws InterruptedException {
         List<String> links = getPlaceDetailByCrawling(station.getName(), category); // 검색해서 나온 링크
 
-        Path path = Paths.get("C:\\Users\\SSAFY\\Desktop\\chromedriver89\\chromedriver.exe"); // 크롬 드라이버 경로
+        Path path = Paths.get("src/main/resources/chromedriver.exe"); // 크롬 드라이버 경로
         System.setProperty("webdriver.chrome.driver", path.toString()); // WebDriver 경로 설정
 
         ChromeOptions options = new ChromeOptions(); // 크롬 드라이버 옵션 설정
@@ -51,17 +51,18 @@ public class Selenium {
         options.addArguments("--disable-popup-blocking");   // 팝업 안띄움
         options.addArguments("--disable-gpu");  // gpu 비활성화
 
-        for(int cnt = 0; cnt < links.size(); cnt++) {
+        for (String link : links) {
             WebDriver driverinfo = new ChromeDriver(options);
             WebDriverWait wait = new WebDriverWait(driverinfo, Duration.ofSeconds(20));    // 드라이버가 실행된 후 20초 기다림
 
-            driverinfo.get(links.get(cnt));
+            driverinfo.get(link);
             driverinfo.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS); // 페이지 전체가 로딩될때까지 기다림
             wait.until(
                     ExpectedConditions.presenceOfElementLocated(By.cssSelector("#_title > span.Fc1rA"))
             ); // 상호명이 뜰 때까지 최대 20초 대기
 
             String name = placeName(driverinfo); // 상호명
+            System.out.println(name);
 //            String placeCategory = placeCategory(driverinfo); // 카테고리
 
             wait.until(
@@ -80,9 +81,10 @@ public class Selenium {
 
             Object[] timeAndDetail = placeTimeAndDetail(driverinfo); // 영업 시간, 상세 정보
             String detail = (String) timeAndDetail[0]; // 상세 정보
+            System.out.println(detail);
 
             Optional<Place> optionalPlace = placeRepository.findByNameAndStationId(name, station.getStationId()); // 상호명, 역과 일치하는 장소
-            if(optionalPlace.isEmpty()) { // 장소가 없으면 장소 생성 및 저장
+            if (optionalPlace.isEmpty()) { // 장소가 없으면 장소 생성 및 저장
                 Place newPlace = Place.builder()
                         .name(name)
                         .grade(grade)
@@ -94,7 +96,7 @@ public class Selenium {
                         .build(); // Place 객체 생성
                 placeRepository.save(newPlace); // 저장
 
-                for(int i=1; i<timeAndDetail.length; i++) {
+                for (int i = 1; i < timeAndDetail.length; i++) {
                     PlaceTime newPlaceTime = PlaceTime.builder()
                             .place(newPlace)
                             .day((byte) i)
@@ -107,9 +109,10 @@ public class Selenium {
                         .map(entity -> entity.update(grade, address, detail, imgUrl, category))
                         .orElse(Place.builder().build());
                 placeRepository.save(newPlace);
-                for(int i=1; i<timeAndDetail.length; i++) {
-                    Optional<PlaceTime> optionalPlaceTime = placeTimeRepository.findByPlaceNumAndDay(newPlace.getPlaceNum(), i);
-                    int finalI = i;
+                for (int i = 1; i < timeAndDetail.length; i++) {
+                    Optional<PlaceTime> optionalPlaceTime = placeTimeRepository.findByPlaceNumAndDay(newPlace.getPlaceNum(), (byte) i);
+
+                    final int finalI = i;
                     PlaceTime newPlaceTime = optionalPlaceTime
                             .map(entity -> entity.update(newPlace, (byte) finalI, (Long) timeAndDetail[finalI]))
                             .orElse(PlaceTime.builder().build());
@@ -125,8 +128,7 @@ public class Selenium {
      * 상호명
      */
     public String placeName(WebDriver driver) {
-        String name = driver.findElement(By.cssSelector("#_title > span.Fc1rA")).getText();
-        return name;
+        return driver.findElement(By.cssSelector("#_title > span.Fc1rA")).getText();
     }
 
     /**
@@ -141,8 +143,7 @@ public class Selenium {
      * 주소
      */
     public String placeAddress(WebDriver driver) {
-        String address = driver.findElement(By.cssSelector("#app-root > div > div > div > div > div > div > div > div > div.O8qbU.tQY7D > div > a > span.LDgIH")).getText();
-        return address;
+        return driver.findElement(By.cssSelector("#app-root > div > div > div > div > div > div > div > div > div.O8qbU.tQY7D > div > a > span.LDgIH")).getText();
     }
 
     /**
@@ -239,6 +240,9 @@ public class Selenium {
                         descriptionElement.click();
                         Thread.sleep(300);
                         detail = descriptionElement.getText();
+                        if(detail.length() > 250) { // 만약 설명의 글자가 250자를 넘을 경우
+                            detail = detail.substring(0, 250) + "...";
+                        }
                     }
                 } else if(titleElement.getText().contains("영업시간")) { // 영업 시간에 대한 설명인 경우
                     if(infoClassAttribute.contains("J1zN9")) { // 영업 시간이 등록되지 않은 경우 - 월 ~ 일 모두 동일한 시간 임의로 부여
@@ -316,11 +320,11 @@ public class Selenium {
     public List<String> getPlaceDetailByCrawling(String station, String category) throws InterruptedException {
         String mapUrl = "https://map.naver.com/p/search/"; // 네이버 지도 검색 url
         List<String> links = new ArrayList<>(); // 링크
-        String keyword = station + "역 " + category;
+        String keyword = station + " " + category;
         String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8); // 인코딩
         String searchUrl = mapUrl + encodedKeyword + "?c=15.00,0,0,0,dh"; // 탐색할 링크
 
-        Path path = Paths.get("C:\\Users\\SSAFY\\Desktop\\chromedriver89\\chromedriver.exe"); // 크롬 드라이버 경로
+        Path path = Paths.get("src/main/resources/chromedriver.exe"); // 크롬 드라이버 경로
         System.setProperty("webdriver.chrome.driver", path.toString()); // WebDriver 경로 설정
 
         ChromeOptions options = new ChromeOptions(); // 크롬 드라이버 옵션 설정
@@ -343,7 +347,7 @@ public class Selenium {
 
             // 스크롤 다운 (네이버 지도의 경우 한 페이지에 50개의 장소가 뜸 - 광고까지 54개)
             for(int j = 0; j <= 5; j++) {
-                List<WebElement> scrolls = driver.findElements(By.cssSelector("\"#_pcmap_list_scroll_container > ul > li")); // 장소 목록 저장
+                List<WebElement> scrolls = driver.findElements(By.cssSelector("#_pcmap_list_scroll_container > ul > li")); // 장소 목록 저장
                 WebElement lastElement = scrolls.get(scrolls.size() - 1); // 장소 목록 중 마지막 장소 요소 저장
                 ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView();", lastElement); // 마지막 장소가 위에 올때까지 스크롤
                 Thread.sleep(500);
@@ -430,14 +434,14 @@ public class Selenium {
             if(startMinutes == -1 || endMinutes == -1) { // 쉬는 날인 경우
             } else if(startMinutes < endMinutes) { // 시작시간보다 끝나는 시간이 늦을 경우 (ex. 10:00 - 19:00)
                 for(int mm = startMinutes; mm < endMinutes; mm += 30) {
-                    bitArray[mm / 30] = 1;
+                    bitArray[47 - mm / 30] = 1;
                 }
             } else if(startMinutes > endMinutes) { // 시작시간보다 끝나는 시간이 빠를 경우 (ex. 10:00 - 02:00)
                 for(int mm = startMinutes; mm < 24 * 60; mm += 30) {
-                    bitArray[mm / 30] = 1;
+                    bitArray[47 - mm / 30] = 1;
                 }
                 for(int mm = 0; mm < endMinutes; mm += 30) {
-                    bitArray[mm / 30] = 1;
+                    bitArray[47 - mm / 30] = 1;
                 }
             }
         } catch (ArrayIndexOutOfBoundsException e) {
