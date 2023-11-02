@@ -80,7 +80,7 @@ public class PlaceDetailDTO {
                 else sb.append(", ").append(operatePeriod);
             }
 
-            timeList[placeTime.getDay() - 1] = days[placeTime.getDay()] + "요일 " + sb;
+            timeList[placeTime.getDay() - 1] = days[placeTime.getDay()] + "요일 " + (sb.toString().isEmpty() ? "휴무일" : sb);
         }
         return timeList;
     }
