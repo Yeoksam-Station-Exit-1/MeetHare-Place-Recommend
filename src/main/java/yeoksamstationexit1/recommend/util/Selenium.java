@@ -4,6 +4,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,18 @@ public class Selenium {
      * 장소들의 상세 정보 링크를 이용하여 상세 정보 저장
      */
     public void createPlaceDetail(Station station, String category) throws InterruptedException {
-        List<String> links = getPlaceDetailByCrawling(station.getName(), category); // 검색해서 나온 링크
+        String keyword = null;
+        if(category.equals("restaurant")) {
+            keyword = "식당";
+        } else if(category.equals("study")) {
+            keyword = "공부";
+        } else if(category.equals("activity")) {
+            keyword = "운동";
+        } else if(category.equals("culture")) {
+            keyword = "문화";
+        }
+        
+        List<String> links = getPlaceDetailByCrawling(station.getName(), keyword); // 검색해서 나온 링크
 
         Path path = Paths.get("src/main/resources/chromedriver.exe"); // 크롬 드라이버 경로
         System.setProperty("webdriver.chrome.driver", path.toString()); // WebDriver 경로 설정
@@ -53,7 +65,7 @@ public class Selenium {
 
         for (String link : links) {
             WebDriver driverinfo = new ChromeDriver(options);
-            WebDriverWait wait = new WebDriverWait(driverinfo, Duration.ofSeconds(20));    // 드라이버가 실행된 후 20초 기다림
+            WebDriverWait wait = new WebDriverWait(driverinfo, Duration.ofSeconds(10));    // 드라이버가 실행된 후 10초 기다림
 
             driverinfo.get(link);
             driverinfo.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS); // 페이지 전체가 로딩될때까지 기다림
@@ -92,6 +104,7 @@ public class Selenium {
                         .detail(detail)
                         .imgUrl(imgUrl)
                         .category(category)
+                        .reviewCount(reviewCnt)
                         .station(station)
                         .build(); // Place 객체 생성
                 placeRepository.save(newPlace); // 저장
@@ -106,7 +119,7 @@ public class Selenium {
                 }
             } else { // 장소가 있으면 업데이트
                 Place newPlace = optionalPlace
-                        .map(entity -> entity.update(grade, address, detail, imgUrl, category))
+                        .map(entity -> entity.update(grade, address, detail, imgUrl, reviewCnt, category))
                         .orElse(Place.builder().build());
                 placeRepository.save(newPlace);
                 for (int i = 1; i < timeAndDetail.length; i++) {
@@ -317,11 +330,11 @@ public class Selenium {
     /**
      * 장소에 대한 상세 정보 링크들 selenium crawling 통해 가져오기
      */
-    public List<String> getPlaceDetailByCrawling(String station, String category) throws InterruptedException {
+    public List<String> getPlaceDetailByCrawling(String station, String keyword) throws InterruptedException {
         String mapUrl = "https://map.naver.com/p/search/"; // 네이버 지도 검색 url
         List<String> links = new ArrayList<>(); // 링크
-        String keyword = station + " " + category;
-        String encodedKeyword = URLEncoder.encode(keyword, StandardCharsets.UTF_8); // 인코딩
+        String searchKeyword = station + " " + keyword;
+        String encodedKeyword = URLEncoder.encode(searchKeyword, StandardCharsets.UTF_8); // 인코딩
         String searchUrl = mapUrl + encodedKeyword + "?c=15.00,0,0,0,dh"; // 탐색할 링크
 
         Path path = Paths.get("src/main/resources/chromedriver.exe"); // 크롬 드라이버 경로
@@ -340,75 +353,87 @@ public class Selenium {
         driver.switchTo().frame(driver.findElement(By.cssSelector("#searchIframe"))); // 검색 목록으로 frame 이동
 
         int i = 1;
-        while(true) {
             webDriverWait.until(
-                    ExpectedConditions.presenceOfElementLocated(By.cssSelector("#_pcmap_list_scroll_container > ul > li"))
-            ); // 해당 요소 찾을 때 까지 최대 20초 대기
+                    ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.XUrfU"))
+            );
+            if(driver.findElement(By.cssSelector("div.XUrfU")).getText().contains("조건에 맞는 업체가 없습니다")) {
+            } else {
+                webDriverWait.until(
+                        ExpectedConditions.presenceOfElementLocated(By.cssSelector("#_pcmap_list_scroll_container > ul > li"))
+                ); // 해당 요소 찾을 때 까지 최대 20초 대기
 
-            // 스크롤 다운 (네이버 지도의 경우 한 페이지에 50개의 장소가 뜸 - 광고까지 54개)
-            for(int j = 0; j <= 5; j++) {
-                List<WebElement> scrolls = driver.findElements(By.cssSelector("#_pcmap_list_scroll_container > ul > li")); // 장소 목록 저장
-                WebElement lastElement = scrolls.get(scrolls.size() - 1); // 장소 목록 중 마지막 장소 요소 저장
-                ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView();", lastElement); // 마지막 장소가 위에 올때까지 스크롤
-                Thread.sleep(500);
-            }
+                // 스크롤 다운 (네이버 지도의 경우 한 페이지에 50개의 장소가 뜸 - 광고까지 54개)
+                for(int j = 0; j <= 5; j++) {
+                    List<WebElement> scrolls = driver.findElements(By.cssSelector("#_pcmap_list_scroll_container > ul > li")); // 장소 목록 저장
+                    WebElement lastElement = scrolls.get(scrolls.size() - 1); // 장소 목록 중 마지막 장소 요소 저장
+                    ((JavascriptExecutor)driver).executeScript("arguments[0].scrollIntoView();", lastElement); // 마지막 장소가 위에 올때까지 스크롤
+                    Thread.sleep(500);
+                }
 
-            List<WebElement> contents = driver.findElements(By.cssSelector("#_pcmap_list_scroll_container > ul > li"));
+                List<WebElement> contents = driver.findElements(By.cssSelector("#_pcmap_list_scroll_container > ul > li"));
 
-            if(contents.size() > 0) {
-                for(WebElement content : contents) {
-                    String classAttribute = content.getAttribute("class");
-                    if(classAttribute.contains("cZnHG")) continue; // 해당 장소가 광고일 경우 넘어감
+                if(contents.size() > 0) {
+                    for(WebElement content : contents) {
+                        String classAttribute = content.getAttribute("class");
+                        if(classAttribute.contains("cZnHG")) continue; // 해당 장소가 광고일 경우 넘어감
 
-                    WebElement nameElement = content.findElement(By.cssSelector("#_pcmap_list_scroll_container > ul > li > div.CHC5F > a > div > div > span.place_bluelink.TYaxT")); // 상호명
-                    nameElement.click(); // 장소 상호명 클릭
-                    driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
-                    driver.switchTo().defaultContent(); // 상위 프레임으로 이동
-                    webDriverWait.until(
-                            ExpectedConditions.presenceOfElementLocated(By.cssSelector("#entryIframe"))
-                    ); // #entryIframe가 로딩될 때까지 대기
+                        WebElement nameElement = content.findElement(By.cssSelector("#_pcmap_list_scroll_container > ul > li > div.CHC5F > a > div > div > span.place_bluelink.TYaxT")); // 상호명
+                        nameElement.click(); // 장소 상호명 클릭
+                        webDriverWait.until((ExpectedCondition<Boolean>) webDriver ->
+                                ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+//                        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
+                        driver.switchTo().defaultContent(); // 상위 프레임으로 이동
+                        webDriverWait.until(
+                                ExpectedConditions.presenceOfElementLocated(By.cssSelector("#entryIframe"))
+                        ); // #entryIframe가 로딩될 때까지 대기
 
-                    String link = "";
-                    try {
-                        link = driver.findElement(By.cssSelector("#entryIframe")).getAttribute("src");
-                    } catch (StaleElementReferenceException e) {
-                        WebElement entryIframe = driver.findElement(By.cssSelector("#entryIframe"));
-                        link = entryIframe.getAttribute("src");
+                        String link = "";
+                        try {
+                            link = driver.findElement(By.cssSelector("#entryIframe")).getAttribute("src");
+                        } catch (StaleElementReferenceException e) {
+                            WebElement entryIframe = driver.findElement(By.cssSelector("#entryIframe"));
+                            link = entryIframe.getAttribute("src");
+                        }
+
+                        links.add(link); // links에 link 추가
+
+//                        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
+                        webDriverWait.until((ExpectedCondition<Boolean>) webDriver ->
+                                ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+                        WebElement button = driver.findElement(By.cssSelector("#section_content > div > div.sc-1wsjitl.OWZjJ > button.sc-lc28fh.bFIegC")); // 상세 정보 iframe 닫기 버튼
+                        button.click(); // 닫기 버튼 클릭
+//                        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
+                        webDriverWait.until((ExpectedCondition<Boolean>) webDriver ->
+                                ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+                        driver.switchTo().frame(driver.findElement(By.cssSelector("#searchIframe"))); // 검색 목록으로 frame 이동
+//                        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
+                        webDriverWait.until((ExpectedCondition<Boolean>) webDriver ->
+                                ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
+//                        i++;
                     }
-
-                    links.add(link); // links에 link 추가
-
-                    driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
-                    WebElement button = driver.findElement(By.cssSelector("#section_content > div > div.sc-1wsjitl.OWZjJ > button.sc-lc28fh.bFIegC")); // 상세 정보 iframe 닫기 버튼
-                    button.click(); // 닫기 버튼 클릭
-                    driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
-                    driver.switchTo().frame(driver.findElement(By.cssSelector("#searchIframe"))); // 검색 목록으로 frame 이동
-                    driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
-                    i++;
                 }
             }
 
             // 페이지 이동
-            List<WebElement> pageNums = driver.findElements(By.cssSelector("#app-root > div > div.XUrfU > div.zRM9F > a.mBN2s")); // 페이지 번호 리스트
-            WebElement nextPageNum = null; // 다음 페이지 번호
-            for(WebElement pageNum : pageNums) {
-                String pageClassAttribute = pageNum.getAttribute("class");
-                int idx = 0; // pageNums 리스트에서 pageNum의 인덱스
-
-                if(pageClassAttribute.contains("qxokY")) { // 현재 페이지 찾았을 때
-                    idx = pageNums.indexOf(pageNum); // 현재 페이지의 리스트 인덱스
-                    if(idx == pageNums.size() - 1) { // 현재 페이지가 마지막 페이지일 경우
-                        break;
-                    } else { // 현재 페이지가 마지막 페이지가 아닐 경우
-                        idx++; // 인덱스 +1
-                        nextPageNum = pageNums.get(idx); // 다음 페이지 번호 지정
-                        nextPageNum.click(); // 클릭
-                        break;
-                    }
-                }
-            }
-            if (nextPageNum == null) break;
-        }
+//            List<WebElement> pageNums = driver.findElements(By.cssSelector("#app-root > div > div.XUrfU > div.zRM9F > a.mBN2s")); // 페이지 번호 리스트
+//            WebElement nextPageNum = null; // 다음 페이지 번호
+//            for(WebElement pageNum : pageNums) {
+//                String pageClassAttribute = pageNum.getAttribute("class");
+//                int idx = 0; // pageNums 리스트에서 pageNum의 인덱스
+//
+//                if(pageClassAttribute.contains("qxokY")) { // 현재 페이지 찾았을 때
+//                    idx = pageNums.indexOf(pageNum); // 현재 페이지의 리스트 인덱스
+//                    if(idx == pageNums.size() - 1) { // 현재 페이지가 마지막 페이지일 경우
+//                        break;
+//                    } else { // 현재 페이지가 마지막 페이지가 아닐 경우
+//                        idx++; // 인덱스 +1
+//                        nextPageNum = pageNums.get(idx); // 다음 페이지 번호 지정
+//                        nextPageNum.click(); // 클릭
+//                        break;
+//                    }
+//                }
+//            }
+//            if (nextPageNum == null) break;
         driver.quit(); // 종료
         return links;
     }

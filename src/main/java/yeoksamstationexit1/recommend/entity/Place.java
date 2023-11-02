@@ -52,22 +52,24 @@ public class Place {
     private Station station;
 
     @Builder
-    public Place(String name, float grade, String address, String detail, String imgUrl, String category, Station station) {
+    public Place(String name, float grade, String address, String detail, String imgUrl, String category, int reviewCount, Station station) {
         this.name = name;
         this.grade = grade;
         this.address = address;
         this.detail = detail;
         this.imgUrl = imgUrl;
         this.category = category;
+        this.reviewCount = reviewCount;
         this.station = station;
     }
 
-    public Place update(float grade, String address, String detail, String imgUrl, String category) {
+    public Place update(float grade, String address, String detail, String imgUrl, int reviewCount, String category) {
         this.grade = grade;
         this.address = address;
         this.detail = detail;
         this.imgUrl = imgUrl;
         this.category = category;
+        this.reviewCount = reviewCount;
         return this;
     }
 }

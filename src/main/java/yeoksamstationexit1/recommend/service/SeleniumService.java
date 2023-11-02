@@ -20,15 +20,13 @@ public class SeleniumService {
         this.selenium = selenium;
     }
 
-    @Scheduled(cron = "0 0 0 * * 1", zone = "Asia/Seoul") // 매주 월요일 0시 0분 0초
+    @Scheduled(cron = "50 7 11 * * *", zone = "Asia/Seoul") // 매주 월요일 0시 0분 0초
     public void createPlace() throws InterruptedException {
         List<Station> stations = stationRepository.findAll();
-        System.out.println("Start!");
-        System.out.println(stations.size());
+
         for(Station station : stations) {
             System.out.println(station.getName());
             selenium.createPlaceDetail(station, "식당"); // 카테고리 차후 수정
         }
-        System.out.println("End!");
     }
 }
