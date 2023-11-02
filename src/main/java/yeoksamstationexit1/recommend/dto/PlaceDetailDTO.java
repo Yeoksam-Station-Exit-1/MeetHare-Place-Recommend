@@ -5,7 +5,8 @@ import lombok.*;
 import yeoksamstationexit1.recommend.entity.Place;
 import yeoksamstationexit1.recommend.entity.PlaceTime;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 
 @Getter
 @Setter
@@ -79,7 +80,7 @@ public class PlaceDetailDTO {
                 else sb.append(", ").append(operatePeriod);
             }
 
-            timeList[placeTime.getDay() - 1] = days[placeTime.getDay()] + "요일 " + sb;
+            timeList[placeTime.getDay() - 1] = days[placeTime.getDay()] + "요일 " + (sb.toString().isEmpty() ? "휴무일" : sb);
         }
         return timeList;
     }

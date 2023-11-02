@@ -2,6 +2,7 @@ package yeoksamstationexit1.recommend.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.istack.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -49,4 +50,26 @@ public class Place {
     @OneToOne
     @JoinColumn(name = "station_id")
     private Station station;
+
+    @Builder
+    public Place(String name, float grade, String address, String detail, String imgUrl, String category, int reviewCount, Station station) {
+        this.name = name;
+        this.grade = grade;
+        this.address = address;
+        this.detail = detail;
+        this.imgUrl = imgUrl;
+        this.category = category;
+        this.reviewCount = reviewCount;
+        this.station = station;
+    }
+
+    public Place update(float grade, String address, String detail, String imgUrl, int reviewCount, String category) {
+        this.grade = grade;
+        this.address = address;
+        this.detail = detail;
+        this.imgUrl = imgUrl;
+        this.category = category;
+        this.reviewCount = reviewCount;
+        return this;
+    }
 }
