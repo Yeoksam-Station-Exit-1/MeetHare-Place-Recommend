@@ -37,8 +37,7 @@ jobs:
       - name: Gradle Caching
         uses: actions/cache@v3
         with:
-          path:
-            ~/.gradle/caches
+          path: ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
@@ -53,6 +52,9 @@ jobs:
       - name: 버전 정보 추출
         run: echo "##[set-output name=version;]$(echo '${{ github.event.head_commit.message }}' | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')"
         id: extract_version_name
+
+      - name: Test
+        run: echo '${{ github.event.head_commit.message }}'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -71,7 +73,7 @@ jobs:
           push: true
           # platforms: linux/amd64
           tags: |
-            tprogramer/my-container-test:latest
-            tprogramer/my-container-test:${{ steps.extract_version_name.outputs.version }}
+            tprogramer/meethare-place-recommend:latest
+            tprogramer/meethare-place-recommend:${{ steps.extract_version_name.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

@@ -1,6 +1,6 @@
 # Template-BE
 
-시계토끼 서비스의 Spring Boot 서버들을 위한 Template Repo 입니다.<br/>
+시계토끼 서비스의 Spring Boot 서버를 위한 Repo 입니다.<br/>
 
 ---
 

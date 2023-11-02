@@ -7,6 +7,7 @@ import yeoksamstationexit1.recommend.dto.ComplexDTO;
 import yeoksamstationexit1.recommend.entity.Place;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<Place, Integer> {
 
@@ -17,4 +18,8 @@ public interface PlaceRepository extends JpaRepository<Place, Integer> {
             "JOIN p.station s JOIN PlaceTime pt WHERE s.StationId = :stationId " +
             "AND pt.day = :day ORDER BY p.grade DESC")
     List<ComplexDTO> findPlaceAndTimeByStationAndDay(@Param("stationId") Integer stationId, @Param("day") Integer day);
+
+    @Query("SELECT p FROM Place p WHERE p.station.StationId = :stationNum " +
+            "AND p.name = :name")
+    Optional<Place> findByNameAndStationId(@Param("name") String name, @Param("stationNum") Integer stationNum);
 }
