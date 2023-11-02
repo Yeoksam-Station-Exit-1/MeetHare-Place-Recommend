@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<Place, Integer> {
 
-    @Query("SELECT p FROM Place p WHERE p.station.StationId = :stationNum ORDER BY p.grade DESC")
+    @Query("SELECT p FROM Place p WHERE p.station.StationId = :stationNum ORDER BY p.grade DESC, p.reviewCount DESC")
     List<Place> findByStationId(@Param("stationNum") Integer stationNum);
 
     @Query("SELECT p.placeNum, p.name, p.grade, p.address, pt.time FROM Place p " +
