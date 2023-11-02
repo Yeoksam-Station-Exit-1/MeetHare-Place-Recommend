@@ -46,11 +46,11 @@ public class Selenium {
         if(category.equals("restaurant")) {
             keyword = "식당";
         } else if(category.equals("study")) {
-            keyword = "공부";
+            keyword = "스터디카페";
         } else if(category.equals("activity")) {
-            keyword = "운동";
+            keyword = "운동시설";
         } else if(category.equals("culture")) {
-            keyword = "문화";
+            keyword = "문화시설";
         }
         
         List<String> links = getPlaceDetailByCrawling(station.getName(), keyword); // 검색해서 나온 링크
@@ -69,71 +69,77 @@ public class Selenium {
 
             driverinfo.get(link);
             driverinfo.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS); // 페이지 전체가 로딩될때까지 기다림
-            wait.until(
-                    ExpectedConditions.presenceOfElementLocated(By.cssSelector("#_title > span.Fc1rA"))
-            ); // 상호명이 뜰 때까지 최대 20초 대기
 
-            String name = placeName(driverinfo); // 상호명
-            System.out.println(name);
+            try {
+                wait.until(
+                        ExpectedConditions.presenceOfElementLocated(By.cssSelector("#_title > span.Fc1rA"))
+                ); // 상호명이 뜰 때까지 최대 20초 대기
+
+                String name = placeName(driverinfo); // 상호명
+                System.out.println(name);
 //            String placeCategory = placeCategory(driverinfo); // 카테고리
 
-            wait.until(
-                    ExpectedConditions.presenceOfElementLocated(By.cssSelector("#app-root > div > div > div > div > div > div > div > div > div.O8qbU.tQY7D > div > a > span.LDgIH"))
-            );
-            String address = placeAddress(driverinfo); // 주소
+                wait.until(
+                        ExpectedConditions.presenceOfElementLocated(By.cssSelector("#app-root > div > div > div > div > div > div > div > div > div.O8qbU.tQY7D > div > a > span.LDgIH"))
+                );
+                String address = placeAddress(driverinfo); // 주소
 
-            Object[] review = placeReview(driverinfo); // 별점, 방문자 리뷰 수
-            float grade = (float) review[0]; // 별점
-            int reviewCnt = (int) review[1]; // 방문자 리뷰 수
+                Object[] review = placeReview(driverinfo); // 별점, 방문자 리뷰 수
+                float grade = (float) review[0]; // 별점
+                int reviewCnt = (int) review[1]; // 방문자 리뷰 수
 
-            wait.until(
-                    ExpectedConditions.presenceOfElementLocated(By.cssSelector("#app-root > div > div > div > div.CB8aP > div"))
-            ); // 이미지 뜰 때까지 대기
-            String imgUrl = placeImgUrl(driverinfo); // 이미지 링크
+                wait.until(
+                        ExpectedConditions.presenceOfElementLocated(By.cssSelector("#app-root > div > div > div > div.CB8aP > div"))
+                ); // 이미지 뜰 때까지 대기
+                String imgUrl = placeImgUrl(driverinfo); // 이미지 링크
 
-            Object[] timeAndDetail = placeTimeAndDetail(driverinfo); // 영업 시간, 상세 정보
-            String detail = (String) timeAndDetail[0]; // 상세 정보
-            System.out.println(detail);
+                Object[] timeAndDetail = placeTimeAndDetail(driverinfo); // 영업 시간, 상세 정보
+                String detail = (String) timeAndDetail[0]; // 상세 정보
+                System.out.println(detail);
 
-            Optional<Place> optionalPlace = placeRepository.findByNameAndStationId(name, station.getStationId()); // 상호명, 역과 일치하는 장소
-            if (optionalPlace.isEmpty()) { // 장소가 없으면 장소 생성 및 저장
-                Place newPlace = Place.builder()
-                        .name(name)
-                        .grade(grade)
-                        .address(address)
-                        .detail(detail)
-                        .imgUrl(imgUrl)
-                        .category(category)
-                        .reviewCount(reviewCnt)
-                        .station(station)
-                        .build(); // Place 객체 생성
-                placeRepository.save(newPlace); // 저장
+                Optional<Place> optionalPlace = placeRepository.findByNameAndStationId(name, station.getStationId()); // 상호명, 역과 일치하는 장소
+                if (optionalPlace.isEmpty()) { // 장소가 없으면 장소 생성 및 저장
+                    Place newPlace = Place.builder()
+                            .name(name)
+                            .grade(grade)
+                            .address(address)
+                            .detail(detail)
+                            .imgUrl(imgUrl)
+                            .category(category)
+                            .reviewCount(reviewCnt)
+                            .station(station)
+                            .build(); // Place 객체 생성
+                    placeRepository.save(newPlace); // 저장
 
-                for (int i = 1; i < timeAndDetail.length; i++) {
-                    PlaceTime newPlaceTime = PlaceTime.builder()
-                            .place(newPlace)
-                            .day((byte) i)
-                            .time((Long) timeAndDetail[i])
-                            .build(); // PlaceTime 객체 생성
-                    placeTimeRepository.save(newPlaceTime); // 저장
+                    for (int i = 1; i < timeAndDetail.length; i++) {
+                        PlaceTime newPlaceTime = PlaceTime.builder()
+                                .place(newPlace)
+                                .day((byte) i)
+                                .time((Long) timeAndDetail[i])
+                                .build(); // PlaceTime 객체 생성
+                        placeTimeRepository.save(newPlaceTime); // 저장
+                    }
+                } else { // 장소가 있으면 업데이트
+                    Place newPlace = optionalPlace
+                            .map(entity -> entity.update(grade, address, detail, imgUrl, reviewCnt, category))
+                            .orElse(Place.builder().build());
+                    placeRepository.save(newPlace);
+                    for (int i = 1; i < timeAndDetail.length; i++) {
+                        Optional<PlaceTime> optionalPlaceTime = placeTimeRepository.findByPlaceNumAndDay(newPlace.getPlaceNum(), (byte) i);
+
+                        final int finalI = i;
+                        PlaceTime newPlaceTime = optionalPlaceTime
+                                .map(entity -> entity.update(newPlace, (byte) finalI, (Long) timeAndDetail[finalI]))
+                                .orElse(PlaceTime.builder().build());
+                        placeTimeRepository.save(newPlaceTime);
+                    }
                 }
-            } else { // 장소가 있으면 업데이트
-                Place newPlace = optionalPlace
-                        .map(entity -> entity.update(grade, address, detail, imgUrl, reviewCnt, category))
-                        .orElse(Place.builder().build());
-                placeRepository.save(newPlace);
-                for (int i = 1; i < timeAndDetail.length; i++) {
-                    Optional<PlaceTime> optionalPlaceTime = placeTimeRepository.findByPlaceNumAndDay(newPlace.getPlaceNum(), (byte) i);
 
-                    final int finalI = i;
-                    PlaceTime newPlaceTime = optionalPlaceTime
-                            .map(entity -> entity.update(newPlace, (byte) finalI, (Long) timeAndDetail[finalI]))
-                            .orElse(PlaceTime.builder().build());
-                    placeTimeRepository.save(newPlaceTime);
-                }
+                driverinfo.quit(); // 종료
+            } catch (Exception e) {
+                driverinfo.quit();
+                continue;
             }
-
-            driverinfo.quit(); // 종료
         }
     }
 
@@ -165,38 +171,43 @@ public class Selenium {
     public Object[] placeReview(WebDriver driver) {
         float rating; // 별점
         int reviewCnt; // 방문자 리뷰 수
-        WebElement reviewinfo = driver.findElement(By.cssSelector("#app-root > div > div > div > div.place_section.no_margin.OP4V8 > div.zD5Nm.undefined > div.dAsGb"));
+        try {
+            WebElement reviewinfo = driver.findElement(By.cssSelector("#app-root > div > div > div > div.place_section.no_margin.OP4V8 > div.zD5Nm.undefined > div.dAsGb"));
 
-        if(reviewinfo.getAttribute("innerHTML").isEmpty()) { // 리뷰 정보가 전혀 없는 경우
-            rating = 0.0f;
-            reviewCnt = 0;
-        } else {
-            // 리뷰 정보가 있는 경우
-            WebElement firstElement = driver.findElement(By.cssSelector("#app-root > div > div > div > div.place_section.no_margin.OP4V8 > div.zD5Nm.undefined > div.dAsGb > span:nth-child(1)")); // 첫 번째 요소
-            String firstElementAttribute = firstElement.getAttribute("class");
-
-            if(firstElementAttribute.contains("LXIwF")) { // 별점이 있는 경우
-                rating = Float.parseFloat(firstElement.getText().replaceAll("[^0-9.]", "")); // 별점 float로 저장
-                WebElement visitCntElement = driver.findElement(By.cssSelector("#app-root > div > div > div > div.place_section.no_margin.OP4V8 > div.zD5Nm.undefined > div.dAsGb > span:nth-child(2)")); // 두 번째 요소
-                String visit = visitCntElement.getText();
-                String[] parts = visit.split(" ");
-
-                if(visit.contains("방문자리뷰")) { // 방문자리뷰인 경우
-                    reviewCnt = Integer.parseInt(parts[1].replace(",", ""));
-                } else { // 방문자리뷰 아닌 경우
-                    reviewCnt = 0;
-                }
-            } else { // 별점이 없는 경우
+            if(reviewinfo.getAttribute("innerHTML").isEmpty()) { // 리뷰 정보가 전혀 없는 경우
                 rating = 0.0f;
-                String visit = firstElement.getText();
-                String[] parts = visit.split(" ");
+                reviewCnt = 0;
+            } else {
+                // 리뷰 정보가 있는 경우
+                WebElement firstElement = driver.findElement(By.cssSelector("#app-root > div > div > div > div.place_section.no_margin.OP4V8 > div.zD5Nm.undefined > div.dAsGb > span:nth-child(1)")); // 첫 번째 요소
+                String firstElementAttribute = firstElement.getAttribute("class");
 
-                if(visit.contains("방문자리뷰")) { // 방문자리뷰인 경우
-                    reviewCnt = Integer.parseInt(parts[1].replace(",", ""));
-                } else { // 방문자리뷰 아닌 경우
-                    reviewCnt = 0;
+                if(firstElementAttribute.contains("LXIwF")) { // 별점이 있는 경우
+                    rating = Float.parseFloat(firstElement.getText().replaceAll("[^0-9.]", "")); // 별점 float로 저장
+                    WebElement visitCntElement = driver.findElement(By.cssSelector("#app-root > div > div > div > div.place_section.no_margin.OP4V8 > div.zD5Nm.undefined > div.dAsGb > span:nth-child(2)")); // 두 번째 요소
+                    String visit = visitCntElement.getText();
+                    String[] parts = visit.split(" ");
+
+                    if(visit.contains("방문자리뷰")) { // 방문자리뷰인 경우
+                        reviewCnt = Integer.parseInt(parts[1].replace(",", ""));
+                    } else { // 방문자리뷰 아닌 경우
+                        reviewCnt = 0;
+                    }
+                } else { // 별점이 없는 경우
+                    rating = 0.0f;
+                    String visit = firstElement.getText();
+                    String[] parts = visit.split(" ");
+
+                    if(visit.contains("방문자리뷰")) { // 방문자리뷰인 경우
+                        reviewCnt = Integer.parseInt(parts[1].replace(",", ""));
+                    } else { // 방문자리뷰 아닌 경우
+                        reviewCnt = 0;
+                    }
                 }
             }
+        } catch (NoSuchElementException e) {
+            rating = 0.0f;
+            reviewCnt = 0;
         }
         return new Object[] {rating, reviewCnt};
     }
@@ -206,22 +217,26 @@ public class Selenium {
      */
     public String placeImgUrl(WebDriver driver) {
         String imgUrl = null;
-        WebElement imageElement = driver.findElement(By.cssSelector("#app-root > div > div > div > div.CB8aP > div"));
-        String imageClassAttribute = imageElement.getAttribute("class");
+        try {
+            WebElement imageElement = driver.findElement(By.cssSelector("#app-root > div > div > div > div.CB8aP > div"));
+            String imageClassAttribute = imageElement.getAttribute("class");
 
-        if(imageClassAttribute.contains("uDR4i")) { // 업체 사진 등록된 경우
-            WebElement imageLinkElement = driver.findElement(By.cssSelector("#_autoPlayable > div"));
-            String imageStyle = imageLinkElement.getAttribute("style");
-            String regex = "url\\((.*?)\\)";
+            if(imageClassAttribute.contains("uDR4i")) { // 업체 사진 등록된 경우
+                WebElement imageLinkElement = driver.findElement(By.cssSelector("#_autoPlayable > div"));
+                String imageStyle = imageLinkElement.getAttribute("style");
+                String regex = "url\\((.*?)\\)";
 
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(imageStyle);
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(imageStyle);
 
-            if(matcher.find()) {
-                imgUrl = matcher.group(1);
-                imgUrl = imgUrl.replace("\"", "");
+                if(matcher.find()) {
+                    imgUrl = matcher.group(1);
+                    imgUrl = imgUrl.replace("\"", "");
+                }
+            } else { // 업체 사진 등록 안 된 경우
+                imgUrl = "등록된 사진 없음";
             }
-        } else { // 업체 사진 등록 안 된 경우
+        } catch (NoSuchElementException e) {
             imgUrl = "등록된 사진 없음";
         }
         return imgUrl;
@@ -235,7 +250,7 @@ public class Selenium {
         Map<Integer, Long> times = new HashMap<>(); // 운영 시간
         String defaultTime = convertTimeToBits("12:00 - 18:00"); // 기본 시간
 
-        List<WebElement> infos = driver.findElements(By.cssSelector("#app-root > div > div > div > div:nth-child(5) > div > div.place_section.no_margin > div > div > div.O8qbU")); // 정보 목록
+        List<WebElement> infos = driver.findElements(By.cssSelector("#app-root > div > div > div > div > div > div.place_section.no_margin > div > div > div.O8qbU")); // 정보 목록
 
         for(int num = 0; num < infos.size(); num++) {
             WebElement infoElement = infos.get(num); // 현재 정보 요소
@@ -349,14 +364,14 @@ public class Selenium {
         WebDriverWait webDriverWait = new WebDriverWait(driver, Duration.ofSeconds(20)); // 드라이버가 실행된 후 20초 기다림
         driver.get(searchUrl);
 
-        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS); // 페이지 전체가 로딩될때까지 기다림
-        driver.switchTo().frame(driver.findElement(By.cssSelector("#searchIframe"))); // 검색 목록으로 frame 이동
+        try {
+            driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS); // 페이지 전체가 로딩될때까지 기다림
+            driver.switchTo().frame(driver.findElement(By.cssSelector("#searchIframe"))); // 검색 목록으로 frame 이동
 
-        int i = 1;
             webDriverWait.until(
                     ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.XUrfU"))
             );
-            if(driver.findElement(By.cssSelector("div.XUrfU")).getText().contains("조건에 맞는 업체가 없습니다")) {
+            if(driver.findElement(By.cssSelector("div.XUrfU")).getText().contains("조건에 맞는 업체가 없습니다")) { // 검색 결과가 없을 때 - 아무 것도 하지 않음
             } else {
                 webDriverWait.until(
                         ExpectedConditions.presenceOfElementLocated(By.cssSelector("#_pcmap_list_scroll_container > ul > li"))
@@ -372,12 +387,27 @@ public class Selenium {
 
                 List<WebElement> contents = driver.findElements(By.cssSelector("#_pcmap_list_scroll_container > ul > li"));
 
+                String nameElementSelector = null;
+                if(keyword.equals("식당")) {
+                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div.CHC5F > a > div > div > span.place_bluelink.TYaxT";
+                } else if(keyword.equals("스터디카페") || keyword.equals("운동시설") || keyword.equals("문화시설")) {
+                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div > div > a > div > div > span.place_bluelink";
+                    String nameElementClass = driver.findElement(By.cssSelector(nameElementSelector)).getAttribute("class");
+                    if(nameElementClass.contains("YwYLL")) {
+                        nameElementSelector += ".YwYLL";
+                    } else if(nameElementClass.contains("t3s7S")) {
+                        nameElementSelector += ".t3s7S";
+                    }
+                }
+
                 if(contents.size() > 0) {
                     for(WebElement content : contents) {
                         String classAttribute = content.getAttribute("class");
-                        if(classAttribute.contains("cZnHG")) continue; // 해당 장소가 광고일 경우 넘어감
+                        if(classAttribute.contains("cZnHG") || classAttribute.contains("hTu5x")) continue; // 해당 장소가 광고일 경우 넘어감
 
-                        WebElement nameElement = content.findElement(By.cssSelector("#_pcmap_list_scroll_container > ul > li > div.CHC5F > a > div > div > span.place_bluelink.TYaxT")); // 상호명
+
+                        WebElement nameElement = content.findElement(By.cssSelector(nameElementSelector)); // 상호명
+                        System.out.println(nameElement.getText());
                         nameElement.click(); // 장소 상호명 클릭
                         webDriverWait.until((ExpectedCondition<Boolean>) webDriver ->
                                 ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
@@ -409,10 +439,11 @@ public class Selenium {
 //                        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
                         webDriverWait.until((ExpectedCondition<Boolean>) webDriver ->
                                 ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
-//                        i++;
                     }
                 }
             }
+        } catch (Exception e) {
+        }
 
             // 페이지 이동
 //            List<WebElement> pageNums = driver.findElements(By.cssSelector("#app-root > div > div.XUrfU > div.zRM9F > a.mBN2s")); // 페이지 번호 리스트

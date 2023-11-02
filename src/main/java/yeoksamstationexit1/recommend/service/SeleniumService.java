@@ -20,7 +20,7 @@ public class SeleniumService {
         this.selenium = selenium;
     }
 
-    @Scheduled(cron = "50 7 11 * * *", zone = "Asia/Seoul") // 매주 월요일 0시 0분 0초
+    @Scheduled(cron = "0 42 15 * * *", zone = "Asia/Seoul") // 매주 월요일 0시 0분 0초
     public void createPlace() throws InterruptedException {
         List<Station> stations = stationRepository.findAll();
 
