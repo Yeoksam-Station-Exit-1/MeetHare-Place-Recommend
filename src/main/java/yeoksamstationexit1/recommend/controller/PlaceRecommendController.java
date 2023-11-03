@@ -2,7 +2,7 @@ package yeoksamstationexit1.recommend.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +17,7 @@ import yeoksamstationexit1.recommend.util.ErrorHandler;
 import java.util.List;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @CrossOrigin("*")
 @RestController
 @Api(tags = "Place")
@@ -25,13 +26,6 @@ public class PlaceRecommendController {
     private final ErrorHandler errorHandler;
     private final PlaceService placeService;
     private final PriorityService priorityService;
-
-    @Autowired
-    public PlaceRecommendController(ErrorHandler errorHandler, PlaceService placeService, PriorityService priorityService) {
-        this.errorHandler = errorHandler;
-        this.placeService = placeService;
-        this.priorityService = priorityService;
-    }
 
     @ApiOperation(value = "비로그인 장소 추천", notes = "비로그인 상황에서 장소 추천 제공")
     @GetMapping("/simple/{stationNum}")
