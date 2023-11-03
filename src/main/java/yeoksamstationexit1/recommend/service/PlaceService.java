@@ -1,10 +1,5 @@
 package yeoksamstationexit1.recommend.service;
 
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import yeoksamstationexit1.recommend.dto.ComplexDTO;
@@ -17,25 +12,17 @@ import yeoksamstationexit1.recommend.repository.PlaceRepository;
 import yeoksamstationexit1.recommend.repository.PlaceTimeRepository;
 import yeoksamstationexit1.recommend.util.DataNotFoundException;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class PlaceService {
     private final PlaceRepository placeRepository;
     private final PlaceTimeRepository placeTimeRepository;
-    private final HttpService httpService;
 
     @Autowired
-    public PlaceService(PlaceRepository placeRepository, PlaceTimeRepository placeTimeRepository, HttpService httpService) {
+    public PlaceService(PlaceRepository placeRepository, PlaceTimeRepository placeTimeRepository) {
         this.placeRepository = placeRepository;
         this.placeTimeRepository = placeTimeRepository;
-        this.httpService = httpService;
     }
 
     public Map<String, List<PlaceDTO>> getSimplePlaceListByStationNum(Integer stationNum) {
@@ -86,7 +73,6 @@ public class PlaceService {
     public List<PlaceDTO> getComplexPlaceRecommend(RecommendRequestDTO recommendRequestDTO) {
         List<ComplexDTO> complexDTOList = placeRepository.findPlaceAndTimeByStationAndDay(recommendRequestDTO.getStationId(), recommendRequestDTO.getDate().getDayOfWeek().getValue());
 
-//        List<Priority> priorityList = priorityRepository.findAllById(recommendRequestDTO.getUserList());
         List<PlaceDTO> suitableList = new ArrayList<>();
         long finalTime = recommendRequestDTO.getFinalTime();
         for (ComplexDTO complexDTO : complexDTOList) {
