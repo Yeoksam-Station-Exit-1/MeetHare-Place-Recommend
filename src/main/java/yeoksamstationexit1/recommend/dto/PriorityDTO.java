@@ -25,4 +25,11 @@ public class PriorityDTO {
     public Priority toPriority() {
         return new Priority(this.quite, this.food, this.activity, this.culture);
     }
+
+    public PriorityDTO(Priority priority) {
+        this.quite = priority.isQuite();
+        this.food = priority.getFood();
+        this.activity = priority.getActivity();
+        this.culture = priority.getCulture();
+    }
 }

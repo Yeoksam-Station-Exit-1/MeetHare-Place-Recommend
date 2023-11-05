@@ -40,4 +40,10 @@ public class PriorityService {
         if (optionalPriority.isEmpty()) throw new DataNotFoundException("User Not Found");
         else priorityRepository.delete(optionalPriority.get());
     }
+
+    public PriorityDTO getPriority(Integer userNum) throws DataNotFoundException {
+        Optional<Priority> optionalPriority = priorityRepository.findById(userNum);
+        if (optionalPriority.isEmpty()) throw new DataNotFoundException("User Not Found");
+        else return new PriorityDTO(optionalPriority.get());
+    }
 }
