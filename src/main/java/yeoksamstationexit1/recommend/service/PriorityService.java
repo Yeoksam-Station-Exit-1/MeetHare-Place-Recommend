@@ -32,7 +32,10 @@ public class PriorityService {
     public void updatePriority(PriorityDTO priorityDTO) throws DataNotFoundException {
         Optional<Priority> optionalPriority = priorityRepository.findById(priorityDTO.getUserID());
         if (optionalPriority.isEmpty()) throw new DataNotFoundException("User Not Found");
-        else optionalPriority.get().update(priorityDTO);
+        else {
+            optionalPriority.get().update(priorityDTO);
+            priorityRepository.save(optionalPriority.get());
+        }
     }
 
     public void deletePriority(Integer userId) throws DataNotFoundException {
