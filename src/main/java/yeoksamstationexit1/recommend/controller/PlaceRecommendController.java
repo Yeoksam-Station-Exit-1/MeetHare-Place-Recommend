@@ -61,6 +61,16 @@ public class PlaceRecommendController {
     }
 
     @ApiOperation(value = "선호도 생성", notes = "회원가입 시 발생하는 선호도 저장")
+    @GetMapping("/priority/{userNum}")
+    public ResponseEntity<?> getPriority(@PathVariable Integer userNum) {
+        try {
+            PriorityDTO priorityDTO = priorityService.getPriority(userNum);
+            return new ResponseEntity<>(priorityDTO,HttpStatus.OK);
+        } catch (Exception e) {
+            return errorHandler.errorMessage(e);
+        }
+    }
+    @ApiOperation(value = "선호도 생성", notes = "회원가입 시 발생하는 선호도 저장")
     @PostMapping("/priority")
     public ResponseEntity<?> createPriority(@RequestBody PriorityDTO priorityDTO) {
         try {
