@@ -16,11 +16,11 @@ public class PriorityDTO {
 
     private boolean quite;
 
-    private int food;
+    private String food;
 
     private String activity;
 
-    private int culture;
+    private String culture;
 
     public Priority toPriority() {
         return new Priority(this.quite, this.food, this.activity, this.culture);
