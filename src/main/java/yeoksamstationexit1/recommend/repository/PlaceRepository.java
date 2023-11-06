@@ -14,10 +14,10 @@ public interface PlaceRepository extends JpaRepository<Place, Integer> {
     @Query("SELECT p FROM Place p WHERE p.station.StationId = :stationNum ORDER BY p.grade DESC, p.reviewCount DESC")
     List<Place> findByStationId(@Param("stationNum") Integer stationNum);
 
-    @Query("SELECT p.placeNum, p.name, p.grade, p.address, pt.time FROM Place p " +
-            "JOIN p.station s JOIN PlaceTime pt WHERE s.StationId = :stationId " +
-            "AND pt.day = :day ORDER BY p.grade DESC")
-    List<ComplexDTO> findPlaceAndTimeByStationAndDay(@Param("stationId") Integer stationId, @Param("day") Integer day);
+    @Query("SELECT new yeoksamstationexit1.recommend.dto.ComplexDTO(p.placeNum, p.name, p.grade, p.address, p.detail)" +
+            "FROM Place p JOIN PlaceTime pt ON p.placeNum = pt.place.placeNum AND pt.day = :day " +
+            "WHERE p.station.StationId = :stationId AND p.category = :category ORDER BY p.grade DESC, p.reviewCount DESC")
+    List<ComplexDTO> findComplexDTOByStationAndDayAndCategory(@Param("stationId") Integer stationId, @Param("day") byte day, @Param("category") String category);
 
     @Query("SELECT p FROM Place p WHERE p.station.StationId = :stationNum " +
             "AND p.name = :name")

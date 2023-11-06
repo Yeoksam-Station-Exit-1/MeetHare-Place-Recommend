@@ -60,11 +60,11 @@ public class PlaceRecommendController {
         }
     }
 
-    @ApiOperation(value = "선호도 생성", notes = "회원가입 시 발생하는 선호도 저장")
-    @GetMapping("/priority/{userNum}")
-    public ResponseEntity<?> getPriority(@PathVariable Integer userNum) {
+    @ApiOperation(value = "선호도 조회", notes = "유저 아이디에 따른 선호 요소 조회")
+    @GetMapping("/priority/{userId}")
+    public ResponseEntity<?> getPriority(@PathVariable Long userId) {
         try {
-            PriorityDTO priorityDTO = priorityService.getPriority(userNum);
+            PriorityDTO priorityDTO = priorityService.getPriority(userId);
             return new ResponseEntity<>(priorityDTO,HttpStatus.OK);
         } catch (Exception e) {
             return errorHandler.errorMessage(e);
@@ -95,7 +95,7 @@ public class PlaceRecommendController {
 
     @ApiOperation(value = "선호도 생성", notes = "회원 삭제 시 발생하는 선호도 삭제")
     @DeleteMapping("/priority")
-    public ResponseEntity<?> deletePriority(@RequestBody Integer userId) {
+    public ResponseEntity<?> deletePriority(@RequestBody Long userId) {
         try {
             priorityService.deletePriority(userId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -1,29 +1,29 @@
 package yeoksamstationexit1.recommend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import yeoksamstationexit1.recommend.dto.ComplexDTO;
 import yeoksamstationexit1.recommend.dto.PlaceDTO;
 import yeoksamstationexit1.recommend.dto.PlaceDetailDTO;
 import yeoksamstationexit1.recommend.dto.RecommendRequestDTO;
 import yeoksamstationexit1.recommend.entity.Place;
 import yeoksamstationexit1.recommend.entity.PlaceTime;
+import yeoksamstationexit1.recommend.entity.Priority;
 import yeoksamstationexit1.recommend.repository.PlaceRepository;
 import yeoksamstationexit1.recommend.repository.PlaceTimeRepository;
+import yeoksamstationexit1.recommend.repository.PriorityRepository;
 import yeoksamstationexit1.recommend.util.DataNotFoundException;
 
 import java.util.*;
 
+@Transactional
+@RequiredArgsConstructor
 @Service
 public class PlaceService {
     private final PlaceRepository placeRepository;
     private final PlaceTimeRepository placeTimeRepository;
-
-    @Autowired
-    public PlaceService(PlaceRepository placeRepository, PlaceTimeRepository placeTimeRepository) {
-        this.placeRepository = placeRepository;
-        this.placeTimeRepository = placeTimeRepository;
-    }
+    private final PriorityRepository priorityRepository;
 
     public Map<String, List<PlaceDTO>> getSimplePlaceListByStationNum(Integer stationNum) {
         List<Place> placeList = placeRepository.findByStationId(stationNum);
@@ -71,16 +71,54 @@ public class PlaceService {
     }
 
     public List<PlaceDTO> getComplexPlaceRecommend(RecommendRequestDTO recommendRequestDTO) {
-        List<ComplexDTO> complexDTOList = placeRepository.findPlaceAndTimeByStationAndDay(recommendRequestDTO.getStationId(), recommendRequestDTO.getDate().getDayOfWeek().getValue());
-
-        List<PlaceDTO> suitableList = new ArrayList<>();
-        long finalTime = recommendRequestDTO.getFinalTime();
-        for (ComplexDTO complexDTO : complexDTOList) {
-            if ((finalTime & complexDTO.getTime()) > 0) {
-                suitableList.add(new PlaceDTO(complexDTO));
+        List<ComplexDTO> complexDTOList = placeRepository.findComplexDTOByStationAndDayAndCategory(recommendRequestDTO.getStationId(), (byte) recommendRequestDTO.getDate().getDayOfWeek().getValue(), recommendRequestDTO.getCategory());
+        List<Priority> priorityList = priorityRepository.findAllById(recommendRequestDTO.getUserList());
+        List<PlaceDTO> finalList = new ArrayList<>();
+        List<Integer> idxList = new ArrayList<>();
+        String preference;
+        boolean quite;
+        for (int i = 0; i < complexDTOList.size(); ++i) {
+            ComplexDTO complexDTO = complexDTOList.get(i);
+            loop:
+            for (Priority priority : priorityList) {
+                switch (recommendRequestDTO.getCategory()) {
+                    case "restaurant":
+                        preference = priority.getFood();
+                        if (complexDTO.getDetail().contains(preference)) {
+                            idxList.add(i);
+                            finalList.add(new PlaceDTO(complexDTO));
+                        }
+                        break loop;
+                    case "culture":
+                        preference = priority.getCulture();
+                        if (complexDTO.getDetail().contains(preference)) {
+                            idxList.add(i);
+                            finalList.add(new PlaceDTO(complexDTO));
+                        }
+                        break loop;
+                    case "activity":
+                        preference = priority.getActivity();
+                        if (complexDTO.getDetail().contains(preference)) {
+                            idxList.add(i);
+                            finalList.add(new PlaceDTO(complexDTO));
+                        }
+                        break loop;
+                    case "study":
+                        quite = priority.isQuite();
+                        if (quite)
+                            if (complexDTO.getDetail().contains("조용")) {
+                                complexDTOList.remove(complexDTO);
+                                finalList.add(new PlaceDTO(complexDTO));
+                            }
+                        break loop;
+                }
             }
         }
 
-        return suitableList;
+        for (int i = 0; i < complexDTOList.size(); ++i)
+            if (!idxList.contains(i))
+                finalList.add(new PlaceDTO(complexDTOList.get(i)));
+
+        return finalList;
     }
 }

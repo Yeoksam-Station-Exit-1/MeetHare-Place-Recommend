@@ -19,7 +19,7 @@ public class Priority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     @NotNull
-    private int userID;
+    private long userID;
 
     private boolean quite;
 
