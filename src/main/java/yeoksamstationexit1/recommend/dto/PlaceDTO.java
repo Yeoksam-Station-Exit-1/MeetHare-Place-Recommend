@@ -39,6 +39,5 @@ public class PlaceDTO {
         this.name = complexDTO.getName();
         this.grade = complexDTO.getGrade();
         this.address = complexDTO.getAddress();
-        this.category = complexDTO.getCategory();
     }
 }

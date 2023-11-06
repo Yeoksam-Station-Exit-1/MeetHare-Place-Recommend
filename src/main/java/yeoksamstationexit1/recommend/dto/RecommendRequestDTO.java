@@ -17,10 +17,9 @@ public class RecommendRequestDTO {
     private int stationId;
 
     @JsonProperty("user_list")
-    private List<Integer> userList;
+    private List<Long> userList;
 
     private LocalDate date;
 
-    @JsonProperty("final_time")
-    private long finalTime;
+    private String category;
 }

@@ -12,7 +12,7 @@ import yeoksamstationexit1.recommend.entity.Priority;
 public class PriorityDTO {
 
     @JsonProperty("user_id")
-    private int userID;
+    private long userID;
 
     private boolean quite;
 
