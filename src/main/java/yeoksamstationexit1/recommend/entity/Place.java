@@ -34,7 +34,7 @@ public class Place {
     private String detail;
 
     @NotNull
-    @Column(columnDefinition = "VARCHAR(550)")
+    @Column(columnDefinition = "VARCHAR(600)")
     private String imgUrl;
 
     @NotNull
