@@ -437,7 +437,7 @@ public class Selenium {
 //                        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
                         webDriverWait.until((ExpectedCondition<Boolean>) webDriver ->
                                 ((JavascriptExecutor) Objects.requireNonNull(webDriver)).executeScript("return document.readyState").equals("complete"));
-                        WebElement button = driver.findElement(By.cssSelector("#section_content > div > div.sc-1wsjitl.OWZjJ > button.sc-lc28fh.bFIegC")); // 상세 정보 iframe 닫기 버튼
+                        WebElement button = driver.findElement(By.cssSelector("#section_content > div > div.sc-1wsjitl.OWZjJ > button.sc-lc28fh")); // 상세 정보 iframe 닫기 버튼
                         button.click(); // 닫기 버튼 클릭
 //                        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
                         webDriverWait.until((ExpectedCondition<Boolean>) webDriver ->
