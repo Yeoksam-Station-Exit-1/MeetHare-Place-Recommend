@@ -19,7 +19,5 @@ public class ComplexDTO {
 
     private String address;
 
-    private long time;
-
-    private String category;
+    private String detail;
 }
