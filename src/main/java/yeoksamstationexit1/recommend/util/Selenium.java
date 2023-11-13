@@ -386,12 +386,13 @@ public class Selenium {
                 }
 
                 List<WebElement> contents = driver.findElements(By.cssSelector("#_pcmap_list_scroll_container > ul > li"));
+                System.out.println(contents.size());
 
                 String nameElementSelector = null;
                 if(keyword.equals("식당")) {
-                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div.CHC5F > a > div > div > span.place_bluelink.TYaxT";
+                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div.CHC5F > a > div > div.place_bluelink > span.TYaxT";
                 } else if(keyword.equals("스터디카페") || keyword.equals("운동시설") || keyword.equals("문화시설")) {
-                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div > div > a > div > div > span.place_bluelink";
+                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div > div > a > div > div.place_bluelink > span:nth-child(1)";
                     String nameElementClass = driver.findElement(By.cssSelector(nameElementSelector)).getAttribute("class");
                     if(nameElementClass.contains("YwYLL")) {
                         nameElementSelector += ".YwYLL";
@@ -404,7 +405,6 @@ public class Selenium {
                     for(WebElement content : contents) {
                         String classAttribute = content.getAttribute("class");
                         if(classAttribute.contains("cZnHG") || classAttribute.contains("hTu5x")) continue; // 해당 장소가 광고일 경우 넘어감
-
 
                         WebElement nameElement = content.findElement(By.cssSelector(nameElementSelector)); // 상호명
                         System.out.println(nameElement.getText());
@@ -430,7 +430,7 @@ public class Selenium {
 //                        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
                         webDriverWait.until((ExpectedCondition<Boolean>) webDriver ->
                                 ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
-                        WebElement button = driver.findElement(By.cssSelector("#section_content > div > div.sc-1wsjitl.OWZjJ > button.sc-lc28fh.bFIegC")); // 상세 정보 iframe 닫기 버튼
+                        WebElement button = driver.findElement(By.cssSelector("#section_content > div > div.sc-1wsjitl.OWZjJ > button.sc-lc28fh")); // 상세 정보 iframe 닫기 버튼
                         button.click(); // 닫기 버튼 클릭
 //                        driver.manage().timeouts().implicitlyWait(Duration.ofMillis(5000)); // 대기
                         webDriverWait.until((ExpectedCondition<Boolean>) webDriver ->

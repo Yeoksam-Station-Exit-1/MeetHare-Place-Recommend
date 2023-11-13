@@ -1,10 +1,5 @@
 package yeoksamstationexit1.recommend.service;
 
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import yeoksamstationexit1.recommend.dto.ComplexDTO;
@@ -17,13 +12,7 @@ import yeoksamstationexit1.recommend.repository.PlaceRepository;
 import yeoksamstationexit1.recommend.repository.PlaceTimeRepository;
 import yeoksamstationexit1.recommend.util.DataNotFoundException;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class PlaceService {
