@@ -81,7 +81,6 @@ public class Selenium {
 
                 String name = placeName(driverinfo); // 상호명
                 System.out.println(name);
-//            String placeCategory = placeCategory(driverinfo); // 카테고리
 
                 wait.until(
                         ExpectedConditions.presenceOfElementLocated(By.cssSelector("#app-root > div > div > div > div > div > div > div > div > div.O8qbU.tQY7D > div > a > span.LDgIH"))
@@ -152,14 +151,6 @@ public class Selenium {
     public String placeName(WebDriver driver) {
         return driver.findElement(By.cssSelector("#_title > span.Fc1rA")).getText();
     }
-
-    /**
-     * 카테고리
-     */
-//    public String placeCategory(WebDriver driver) {
-//        String category = driver.findElement(By.cssSelector("#_title > span.DJJvD")).getText();
-//        return category;
-//    }
 
     /**
      * 주소
@@ -452,26 +443,6 @@ public class Selenium {
         } catch (Exception ignored) {
         }
 
-        // 페이지 이동
-//            List<WebElement> pageNums = driver.findElements(By.cssSelector("#app-root > div > div.XUrfU > div.zRM9F > a.mBN2s")); // 페이지 번호 리스트
-//            WebElement nextPageNum = null; // 다음 페이지 번호
-//            for(WebElement pageNum : pageNums) {
-//                String pageClassAttribute = pageNum.getAttribute("class");
-//                int idx = 0; // pageNums 리스트에서 pageNum의 인덱스
-//
-//                if(pageClassAttribute.contains("qxokY")) { // 현재 페이지 찾았을 때
-//                    idx = pageNums.indexOf(pageNum); // 현재 페이지의 리스트 인덱스
-//                    if(idx == pageNums.size() - 1) { // 현재 페이지가 마지막 페이지일 경우
-//                        break;
-//                    } else { // 현재 페이지가 마지막 페이지가 아닐 경우
-//                        idx++; // 인덱스 +1
-//                        nextPageNum = pageNums.get(idx); // 다음 페이지 번호 지정
-//                        nextPageNum.click(); // 클릭
-//                        break;
-//                    }
-//                }
-//            }
-//            if (nextPageNum == null) break;
         driver.quit(); // 종료
         return links;
     }

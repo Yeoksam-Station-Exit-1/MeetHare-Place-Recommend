@@ -23,7 +23,7 @@ public class PriorityDTO {
     private String culture;
 
     public Priority toPriority() {
-        return new Priority(this.quite, this.food, this.activity, this.culture);
+        return new Priority(this.userID, this.quite, this.food, this.activity, this.culture);
     }
 
     public PriorityDTO(Priority priority) {

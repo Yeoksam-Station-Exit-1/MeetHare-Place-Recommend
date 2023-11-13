@@ -16,7 +16,7 @@ public class SeleniumService {
     private final Selenium selenium;
 
     @Scheduled(cron = "0 0 0 1 * ?", zone = "Asia/Seoul") // 매달 1일 0시 0분 0초
-    public void createPlace() throws InterruptedException {
+    public void createPlace() {
         List<Station> stations = stationRepository.findAll();
 
         for(Station station : stations) {
