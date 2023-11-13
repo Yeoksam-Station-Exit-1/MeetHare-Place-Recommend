@@ -27,6 +27,7 @@ public class PriorityDTO {
     }
 
     public PriorityDTO(Priority priority) {
+        this.userID = priority.getUserID();
         this.quite = priority.isQuite();
         this.food = priority.getFood();
         this.activity = priority.getActivity();

@@ -16,7 +16,6 @@ public class Priority {
 
     @JsonProperty("user_id")
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     @NotNull
     private long userID;
