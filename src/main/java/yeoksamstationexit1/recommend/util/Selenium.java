@@ -81,7 +81,6 @@ public class Selenium {
 
                 String name = placeName(driverinfo); // 상호명
                 System.out.println(name);
-//            String placeCategory = placeCategory(driverinfo); // 카테고리
 
                 wait.until(
                         ExpectedConditions.presenceOfElementLocated(By.cssSelector("#app-root > div > div > div > div > div > div > div > div > div.O8qbU.tQY7D > div > a > span.LDgIH"))
@@ -152,14 +151,6 @@ public class Selenium {
     public String placeName(WebDriver driver) {
         return driver.findElement(By.cssSelector("#_title > span.Fc1rA")).getText();
     }
-
-    /**
-     * 카테고리
-     */
-//    public String placeCategory(WebDriver driver) {
-//        String category = driver.findElement(By.cssSelector("#_title > span.DJJvD")).getText();
-//        return category;
-//    }
 
     /**
      * 주소
@@ -392,12 +383,13 @@ public class Selenium {
                 }
 
                 List<WebElement> contents = driver.findElements(By.cssSelector("#_pcmap_list_scroll_container > ul > li"));
+                System.out.println(contents.size());
 
                 String nameElementSelector = null;
-                if (keyword.equals("식당")) {
-                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div.CHC5F > a > div > div > span.place_bluelink.TYaxT";
-                } else if (keyword.equals("스터디카페") || keyword.equals("운동시설") || keyword.equals("문화시설")) {
-                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div > div > a > div > div > span.place_bluelink";
+                if(keyword.equals("식당")) {
+                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div.CHC5F > a > div > div.place_bluelink > span.TYaxT";
+                } else if(keyword.equals("스터디카페") || keyword.equals("운동시설") || keyword.equals("문화시설")) {
+                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div > div > a > div > div.place_bluelink > span:nth-child(1)";
                     String nameElementClass = driver.findElement(By.cssSelector(nameElementSelector)).getAttribute("class");
                     if (nameElementClass.contains("YwYLL")) {
                         nameElementSelector += ".YwYLL";
@@ -411,7 +403,6 @@ public class Selenium {
                         String classAttribute = content.getAttribute("class");
                         if (classAttribute.contains("cZnHG") || classAttribute.contains("hTu5x"))
                             continue; // 해당 장소가 광고일 경우 넘어감
-
 
                         WebElement nameElement = content.findElement(By.cssSelector(nameElementSelector)); // 상호명
                         System.out.println(nameElement.getText());
@@ -452,26 +443,6 @@ public class Selenium {
         } catch (Exception ignored) {
         }
 
-        // 페이지 이동
-//            List<WebElement> pageNums = driver.findElements(By.cssSelector("#app-root > div > div.XUrfU > div.zRM9F > a.mBN2s")); // 페이지 번호 리스트
-//            WebElement nextPageNum = null; // 다음 페이지 번호
-//            for(WebElement pageNum : pageNums) {
-//                String pageClassAttribute = pageNum.getAttribute("class");
-//                int idx = 0; // pageNums 리스트에서 pageNum의 인덱스
-//
-//                if(pageClassAttribute.contains("qxokY")) { // 현재 페이지 찾았을 때
-//                    idx = pageNums.indexOf(pageNum); // 현재 페이지의 리스트 인덱스
-//                    if(idx == pageNums.size() - 1) { // 현재 페이지가 마지막 페이지일 경우
-//                        break;
-//                    } else { // 현재 페이지가 마지막 페이지가 아닐 경우
-//                        idx++; // 인덱스 +1
-//                        nextPageNum = pageNums.get(idx); // 다음 페이지 번호 지정
-//                        nextPageNum.click(); // 클릭
-//                        break;
-//                    }
-//                }
-//            }
-//            if (nextPageNum == null) break;
         driver.quit(); // 종료
         return links;
     }
