@@ -1,6 +1,6 @@
 package yeoksamstationexit1.recommend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import yeoksamstationexit1.recommend.entity.Station;
@@ -9,18 +9,13 @@ import yeoksamstationexit1.recommend.util.Selenium;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class SeleniumService {
     private final StationRepository stationRepository;
     private final Selenium selenium;
 
-    @Autowired
-    public SeleniumService(StationRepository stationRepository, Selenium selenium) {
-        this.stationRepository = stationRepository;
-        this.selenium = selenium;
-    }
-
-    @Scheduled(cron = "0 0 0 1 * ?", zone = "Asia/Seoul")
+    @Scheduled(cron = "0 0 0 1 * ?", zone = "Asia/Seoul") // 매달 1일 0시 0분 0초
     public void createPlace() throws InterruptedException {
         List<Station> stations = stationRepository.findAll();
 

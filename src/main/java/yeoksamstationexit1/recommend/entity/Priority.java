@@ -19,27 +19,27 @@ public class Priority {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     @NotNull
-    private int userID;
+    private long userID;
 
     private boolean quite;
 
-    private byte food;
+    private String food;
 
     private String activity;
 
-    private byte culture;
+    private String culture;
 
-    public Priority(boolean quite, int food, String activity, int culture) {
+    public Priority(boolean quite, String food, String activity, String culture) {
         this.activity = activity;
-        this.culture = (byte) culture;
-        this.food = (byte) food;
+        this.culture = culture;
+        this.food = food;
         this.quite = quite;
     }
 
     public void update(PriorityDTO priorityDTO) {
         this.activity = priorityDTO.getActivity();
-        this.culture = (byte) priorityDTO.getCulture();
-        this.food = (byte) priorityDTO.getFood();
+        this.culture = priorityDTO.getCulture();
+        this.food = priorityDTO.getFood();
         this.quite = priorityDTO.isQuite();
     }
 }
