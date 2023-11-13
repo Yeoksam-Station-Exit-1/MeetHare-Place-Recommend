@@ -29,7 +29,8 @@ public class Priority {
 
     private String culture;
 
-    public Priority(boolean quite, String food, String activity, String culture) {
+    public Priority(long userID, boolean quite, String food, String activity, String culture) {
+        this.userID = userID;
         this.activity = activity;
         this.culture = culture;
         this.food = food;
