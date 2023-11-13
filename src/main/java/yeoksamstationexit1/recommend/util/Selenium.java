@@ -392,12 +392,13 @@ public class Selenium {
                 }
 
                 List<WebElement> contents = driver.findElements(By.cssSelector("#_pcmap_list_scroll_container > ul > li"));
+                System.out.println(contents.size());
 
                 String nameElementSelector = null;
-                if (keyword.equals("식당")) {
-                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div.CHC5F > a > div > div > span.place_bluelink.TYaxT";
-                } else if (keyword.equals("스터디카페") || keyword.equals("운동시설") || keyword.equals("문화시설")) {
-                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div > div > a > div > div > span.place_bluelink";
+                if(keyword.equals("식당")) {
+                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div.CHC5F > a > div > div.place_bluelink > span.TYaxT";
+                } else if(keyword.equals("스터디카페") || keyword.equals("운동시설") || keyword.equals("문화시설")) {
+                    nameElementSelector = "#_pcmap_list_scroll_container > ul > li > div > div > a > div > div.place_bluelink > span:nth-child(1)";
                     String nameElementClass = driver.findElement(By.cssSelector(nameElementSelector)).getAttribute("class");
                     if (nameElementClass.contains("YwYLL")) {
                         nameElementSelector += ".YwYLL";
@@ -411,7 +412,6 @@ public class Selenium {
                         String classAttribute = content.getAttribute("class");
                         if (classAttribute.contains("cZnHG") || classAttribute.contains("hTu5x"))
                             continue; // 해당 장소가 광고일 경우 넘어감
-
 
                         WebElement nameElement = content.findElement(By.cssSelector(nameElementSelector)); // 상호명
                         System.out.println(nameElement.getText());

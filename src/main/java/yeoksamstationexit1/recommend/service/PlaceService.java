@@ -1,6 +1,10 @@
 package yeoksamstationexit1.recommend.service;
 
+<<<<<<< HEAD
+import org.springframework.beans.factory.annotation.Autowired;
+=======
 import lombok.RequiredArgsConstructor;
+>>>>>>> 60ff7e504617376f0479edff4c715688c2cec16f
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import yeoksamstationexit1.recommend.dto.ComplexDTO;

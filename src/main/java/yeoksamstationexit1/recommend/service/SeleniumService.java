@@ -3,7 +3,6 @@ package yeoksamstationexit1.recommend.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import yeoksamstationexit1.recommend.entity.Station;
 import yeoksamstationexit1.recommend.repository.StationRepository;
 import yeoksamstationexit1.recommend.util.Selenium;
