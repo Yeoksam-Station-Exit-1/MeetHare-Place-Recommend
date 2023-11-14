@@ -15,7 +15,7 @@ public interface PlaceRepository extends JpaRepository<Place, Integer> {
     List<Place> findByStationId(@Param("stationNum") Integer stationNum);
 
     @Query("SELECT new yeoksamstationexit1.recommend.dto.ComplexDTO(p.placeNum, p.name, p.grade,p.category, p.address, p.detail)" +
-            "FROM Place p JOIN PlaceTime pt ON p.placeNum = pt.place.placeNum " +
+            "FROM Place p " +
             "WHERE p.station.StationId = :stationId AND p.category = :category ORDER BY p.grade DESC, p.reviewCount DESC")
     List<ComplexDTO> findComplexDTOByStationAndCategory(@Param("stationId") Integer stationId, @Param("category") String category);
 
