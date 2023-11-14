@@ -71,7 +71,7 @@ public class PlaceService {
     }
 
     public List<PlaceDTO> getComplexPlaceRecommend(RecommendRequestDTO recommendRequestDTO) {
-        List<ComplexDTO> complexDTOList = placeRepository.findComplexDTOByStationAndDayAndCategory(recommendRequestDTO.getStationId(), (byte) recommendRequestDTO.getDate().getDayOfWeek().getValue(), recommendRequestDTO.getCategory());
+        List<ComplexDTO> complexDTOList = placeRepository.findComplexDTOByStationAndCategory(recommendRequestDTO.getStationId(), recommendRequestDTO.getCategory());
         List<Priority> priorityList = priorityRepository.findAllById(recommendRequestDTO.getUserList());
         List<PlaceDTO> finalList = new ArrayList<>();
         List<Integer> idxList = new ArrayList<>();

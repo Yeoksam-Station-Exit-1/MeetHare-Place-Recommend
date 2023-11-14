@@ -3,7 +3,6 @@ package yeoksamstationexit1.recommend.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -19,7 +18,7 @@ public class RecommendRequestDTO {
     @JsonProperty("user_list")
     private List<Long> userList;
 
-    private LocalDate date;
+//    private LocalDate date;
 
     private String category;
 }

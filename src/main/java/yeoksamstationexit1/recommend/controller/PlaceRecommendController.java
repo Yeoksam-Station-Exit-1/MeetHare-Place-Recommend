@@ -14,6 +14,7 @@ import yeoksamstationexit1.recommend.service.PlaceService;
 import yeoksamstationexit1.recommend.service.PriorityService;
 import yeoksamstationexit1.recommend.util.ErrorHandler;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,9 @@ public class PlaceRecommendController {
     public ResponseEntity<?> getComplexPlaceRecommend(@RequestBody RecommendRequestDTO recommendRequestDTO) {
         try {
             List<PlaceDTO> list = placeService.getComplexPlaceRecommend(recommendRequestDTO);
-            return new ResponseEntity<>(list, HttpStatus.OK);
+            Map<String,List<PlaceDTO>> returnData = new HashMap<>();
+            returnData.put(recommendRequestDTO.getCategory(),list);
+            return new ResponseEntity<>(returnData, HttpStatus.OK);
         } catch (Exception e) {
             return errorHandler.errorMessage(e);
         }
