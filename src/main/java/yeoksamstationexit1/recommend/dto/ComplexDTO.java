@@ -17,6 +17,8 @@ public class ComplexDTO {
 
     private float grade;
 
+    private String category;
+
     private String address;
 
     private String detail;

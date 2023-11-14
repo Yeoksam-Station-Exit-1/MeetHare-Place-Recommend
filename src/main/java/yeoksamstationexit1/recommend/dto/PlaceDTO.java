@@ -35,6 +35,7 @@ public class PlaceDTO {
     }
 
     public PlaceDTO(ComplexDTO complexDTO) {
+        this.category = complexDTO.getCategory();
         this.placeNum = complexDTO.getPlaceNum();
         this.name = complexDTO.getName();
         this.grade = complexDTO.getGrade();
