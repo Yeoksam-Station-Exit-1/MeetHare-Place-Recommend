@@ -23,6 +23,9 @@ public class PriorityDTO {
     private String culture;
 
     public Priority toPriority() {
+        if(this.food == null) this.food = "a";
+        if(this.activity == null) this.activity = "a";
+        if(this.culture == null) this.culture = "a";
         return new Priority(this.userID, this.quite, this.food, this.activity, this.culture);
     }
 
